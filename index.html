@@ -20,7 +20,7 @@
             padding: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             text-align: center;
-            width: 300px;
+            width: 350px;
         }
         h1 {
             color: #4CAF50;
@@ -29,9 +29,9 @@
             font-size: 1.1em;
             color: #555;
         }
-        input[type="number"] {
+        input[type="number"], select {
             padding: 10px;
-            width: 80%;
+            width: 100%;
             font-size: 1em;
             margin: 10px 0;
             border-radius: 5px;
@@ -46,6 +46,7 @@
             font-size: 1em;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            margin-top: 10px;
         }
         button:hover {
             background-color: #45a049;
@@ -64,19 +65,54 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎲 Adivinhe o Número</h1>
-        <p>Estou pensando em um número entre 1 e 10. Tente adivinhar!</p>
-        <input type="number" id="guess" min="1" max="10" placeholder="Digite seu palpite" />
+        <h1>🎲 Jogo de Adivinhação</h1>
+        <p>Escolha o intervalo e a dificuldade:</p>
+        <label for="range">Número máximo:</label>
+        <select id="range" onchange="resetGame()">
+            <option value="10">1 a 10</option>
+            <option value="20">1 a 20</option>
+            <option value="50">1 a 50</option>
+            <option value="100">1 a 100</option>
+        </select>
+
+        <label for="difficulty">Dificuldade:</label>
+        <select id="difficulty" onchange="resetGame()">
+            <option value="10">Fácil (10 tentativas)</option>
+            <option value="7">Médio (7 tentativas)</option>
+            <option value="5">Difícil (5 tentativas)</option>
+        </select>
+
+        <input type="number" id="guess" min="1" placeholder="Digite seu palpite" />
         <button onclick="checkGuess()">Adivinhar</button>
+        <button onclick="resetGame()">Reiniciar Jogo</button>
+
         <div id="result" class="result"></div>
         <div id="attempts" class="attempts"></div>
     </div>
 
     <script>
-        // Número aleatório entre 1 e 10
-        const numeroPensado = Math.floor(Math.random() * 10) + 1;
+        let numeroPensado;
+        let maxTentativas;
         let attempts = 0;
         let attemptsList = [];
+        let tentativasRestantes;
+
+        // Função para inicializar o jogo
+        function resetGame() {
+            const range = parseInt(document.getElementById("range").value);
+            maxTentativas = parseInt(document.getElementById("difficulty").value);
+
+            // Define o número aleatório dentro do intervalo selecionado
+            numeroPensado = Math.floor(Math.random() * range) + 1;
+            attempts = 0;
+            attemptsList = [];
+            tentativasRestantes = maxTentativas;
+
+            // Limpa mensagens e tentaivas anteriores
+            document.getElementById("result").textContent = "";
+            document.getElementById("attempts").textContent = "Tentativas restantes: " + tentativasRestantes;
+            document.getElementById("guess").value = "";
+        }
 
         // Detecta a tecla Enter e chama checkGuess()
         document.getElementById("guess").addEventListener("keyup", function(event) {
@@ -86,27 +122,32 @@
         });
 
         function checkGuess() {
-            // Lê o valor digitado pelo usuário
             const guessInput = document.getElementById("guess");
             const guess = parseInt(guessInput.value);
             const resultElement = document.getElementById("result");
             const attemptsElement = document.getElementById("attempts");
 
             // Verifica se o palpite é válido
-            if (isNaN(guess) || guess < 1 || guess > 10) {
-                resultElement.textContent = "Por favor, insira um número entre 1 e 10.";
+            if (isNaN(guess) || guess < 1 || guess > parseInt(document.getElementById("range").value)) {
+                resultElement.textContent = "Por favor, insira um número dentro do intervalo.";
                 resultElement.style.color = "red";
                 return;
             }
 
-            // Incrementa o contador de tentativas
+            // Incrementa o contador de tentativas e decrementa as tentativas restantes
             attempts++;
+            tentativasRestantes--;
             attemptsList.push(guess);
 
             // Verifica se o palpite está correto, menor ou maior
             if (guess === numeroPensado) {
                 resultElement.textContent = `🎉 Parabéns! Você acertou o número em ${attempts} tentativas!`;
                 resultElement.style.color = "green";
+                attemptsElement.textContent = "";
+            } else if (tentativasRestantes === 0) {
+                resultElement.textContent = `😢 Suas tentativas acabaram! O número era ${numeroPensado}.`;
+                resultElement.style.color = "red";
+                attemptsElement.textContent = "";
             } else if (guess < numeroPensado) {
                 resultElement.textContent = "O número é maior. Tente novamente.";
                 resultElement.style.color = "orange";
@@ -115,12 +156,15 @@
                 resultElement.style.color = "orange";
             }
 
-            // Atualiza a lista de tentativas
-            attemptsElement.textContent = `Tentativas anteriores: ${attemptsList.join(", ")}`;
+            // Atualiza a lista de tentativas e o contador de tentativas restantes
+            attemptsElement.textContent = `Tentativas anteriores: ${attemptsList.join(", ")} | Tentativas restantes: ${tentativasRestantes}`;
 
             // Limpa o campo de entrada para o próximo palpite
             guessInput.value = "";
         }
+
+        // Inicializa o jogo na primeira execução
+        resetGame();
     </script>
 </body>
 </html>
