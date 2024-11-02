@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Adivinhação</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 300px;
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        p {
+            font-size: 1.1em;
+            color: #555;
+        }
+        input[type="number"] {
+            padding: 10px;
+            width: 80%;
+            font-size: 1em;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .attempts {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 Adivinhe o Número</h1>
+        <p>Estou pensando em um número entre 1 e 10. Tente adivinhar!</p>
+        <input type="number" id="guess" min="1" max="10" placeholder="Digite seu palpite" />
+        <button onclick="checkGuess()">Adivinhar</button>
+        <div id="result" class="result"></div>
+        <div id="attempts" class="attempts"></div>
+    </div>
+
+    <script>
+        // Número aleatório entre 1 e 10
+        const numeroPensado = Math.floor(Math.random() * 10) + 1;
+        let attempts = 0;
+        let attemptsList = [];
+
+        // Detecta a tecla Enter e chama checkGuess()
+        document.getElementById("guess").addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                checkGuess();
+            }
+        });
+
+        function checkGuess() {
+            // Lê o valor digitado pelo usuário
+            const guessInput = document.getElementById("guess");
+            const guess = parseInt(guessInput.value);
+            const resultElement = document.getElementById("result");
+            const attemptsElement = document.getElementById("attempts");
+
+            // Verifica se o palpite é válido
+            if (isNaN(guess) || guess < 1 || guess > 10) {
+                resultElement.textContent = "Por favor, insira um número entre 1 e 10.";
+                resultElement.style.color = "red";
+                return;
+            }
+
+            // Incrementa o contador de tentativas
+            attempts++;
+            attemptsList.push(guess);
+
+            // Verifica se o palpite está correto, menor ou maior
+            if (guess === numeroPensado) {
+                resultElement.textContent = `🎉 Parabéns! Você acertou o número em ${attempts} tentativas!`;
+                resultElement.style.color = "green";
+            } else if (guess < numeroPensado) {
+                resultElement.textContent = "O número é maior. Tente novamente.";
+                resultElement.style.color = "orange";
+            } else {
+                resultElement.textContent = "O número é menor. Tente novamente.";
+                resultElement.style.color = "orange";
+            }
+
+            // Atualiza a lista de tentativas
+            attemptsElement.textContent = `Tentativas anteriores: ${attemptsList.join(", ")}`;
+
+            // Limpa o campo de entrada para o próximo palpite
+            guessInput.value = "";
+        }
+    </script>
+</body>
+</html>
